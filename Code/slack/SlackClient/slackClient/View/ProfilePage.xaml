@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SlackClient.Views.ProfilePage"
+             Title="Profile">
+    <ScrollView>
+    <StackLayout Spacing="18">
+        <Button Text="Upload" Command="{Binding UpdateCommand}" FontSize="Micro" BackgroundColor="LightBlue"/>
+        <StackLayout>
+            <Image Source="{Binding UserImage}"></Image>
+            <Label Text="Name:" FontSize="Medium" TextColor="Black"/>
+                <Label Text="{Binding UserName}" FontSize="Medium"/>
+                <Label Text="Workspace:" FontSize="Medium" TextColor="Black"/>
+            <Label Text="{Binding WorkspaceTeam}" FontSize="Medium"/>
+                <Label Text="Url:" FontSize="Medium" TextColor="Black"/>
+            <Label Text="{Binding WorkspaceUrl}" FontSize="Medium"/>
+        </StackLayout>
+    </StackLayout>
+    </ScrollView>
+</ContentPage>
