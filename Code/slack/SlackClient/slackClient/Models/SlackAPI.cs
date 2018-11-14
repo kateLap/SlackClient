@@ -50,12 +50,12 @@ namespace SlackClient.Models
         {
             SerializerSettings = new JsonSerializerSettings
             {
-                ContractResolver = new SlackPropertyNamesContractResolver(),         
-                Formatting = Formatting.Indented,                                    
-                NullValueHandling = NullValueHandling.Ignore,                           
+                ContractResolver = new SlackPropertyNamesContractResolver(),
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore,
             };
             SerializerSettings.Converters.Add(new StringEnumConverter());
-            SerializerSettings.Converters.Add(new EpochDateTimeConverter());      
+            SerializerSettings.Converters.Add(new EpochDateTimeConverter());
         }
 
 
@@ -86,7 +86,7 @@ namespace SlackClient.Models
             }
             Response = resInfo;
         }
-       
+
         protected static KeyValuePair<string, string> Pair(string key, object value)
         {
             return Pair(key, value.ToString());
@@ -96,7 +96,7 @@ namespace SlackClient.Models
         {
             return new KeyValuePair<string, string>(key, value);
         }
-      
+
         public async Task AuthTest()
         {
             await Request<AuthTestResponse>("auth.test");
@@ -137,12 +137,16 @@ namespace SlackClient.Models
             await Request<ChannelsHistoryResponse>("im.history", Pair("channel", channelId));
         }
 
+        public async Task ChannelsSetTopic(string channelId, string topic)
+        {
+            await Request<SetTopicResponse>("channels.setTopic", Pair("channel", channelId), Pair("topic", topic));
+        }
+
         public async Task Send(IEnumerable<KeyValuePair<string, string>> model)
         {
             await Request<ChatPostMessageResponse>("chat.postMessage", model.ToArray());
         }
 
-        // TODO: Реализовать шаблон Строитель.
         public async Task ChatPostMessage(
          string channelId,
          string text,
