@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SlackClient.Views.ChatMessagesPage" Title="{Binding ChatName}">
+
+    <StackLayout>
+        <ListView x:Name="messagesList" ItemsSource="{Binding Messages}"
+              SelectedItem="{Binding Message, Mode=TwoWay}" 
+                  HasUnevenRows="True"
+                  IsPullToRefreshEnabled="True" 
+                  RefreshCommand="{Binding SendMessageCommand}" 
+                  IsRefreshing="{Binding IsUpdating}" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout x:Name="infoStack" Spacing="8">
+                                <Label Text="{Binding Text}" FontSize="Medium"/>
+                                <StackLayout x:Name="info" Spacing="8" Orientation="Horizontal">
+                                    <Label Text="{Binding UserId}" FontSize="Micro"/>
+                                    <Label Text="{Binding UserName}" FontSize="Micro"/>
+                                    <Label Text="{Binding Time}" FontSize="Micro" HorizontalOptions="End"/>
+                                </StackLayout>
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackLayout x:Name="info" Spacing="8" Orientation="Horizontal">
+            <Entry Text="{Binding TextMessage}" FontSize="Medium" HorizontalOptions="FillAndExpand" />
+            <Button Text="Send" Command="{Binding SendMessageCommand}" BackgroundColor="Aqua" HorizontalOptions="End"/>
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

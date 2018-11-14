@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SlackClient.Views.UsersProfilePage" Title="{Binding User}">
+    <StackLayout >
+
+        <StackLayout>
+            <Label Text="Name:" FontSize="Medium" TextColor="Black"/>
+            <Label Text="{Binding User}" FontSize="Medium"/>
+            <Label Text="User id:" FontSize="Medium" TextColor="Black"/>
+            <Label Text="{Binding UserId}" FontSize="Medium"/>
+            <Label Text="Email:" FontSize="Medium" TextColor="Black"/>
+            <Label Text="{Binding UserEmail}" FontSize="Medium"/>
+            <Label Text="Channels (select for kicking):" FontSize="Medium" TextColor="Black"/>
+        </StackLayout>
+        <ListView ItemsSource="{Binding Channels}"
+                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" 
+                  HasUnevenRows="True"
+                  IsPullToRefreshEnabled="True" 
+                  RefreshCommand="{Binding UpdateChannelsCommand}" 
+                  IsRefreshing="{Binding IsUpdating}" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout Spacing="25">
+                               <Label Text="{Binding Name}" FontSize="Large"/>
+                                <Label Text="{Binding Id}" FontSize="Micro"/>
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

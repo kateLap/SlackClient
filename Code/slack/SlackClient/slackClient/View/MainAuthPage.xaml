@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MasterDetailPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SlackClient.Views.MainAuthPage"
+                  Title="Auth">
+    
+    <MasterDetailPage.Master>
+        <ContentPage Title="Auth">
+            <ContentPage.Content>
+                <StackLayout Padding="5,50,5,5">
+                    <Button Text="Profile" Clicked="ButtonProfile" BackgroundColor="Blue"></Button>
+                    <Button Text="Users"  Clicked="ButtonUsers" BackgroundColor="BlueViolet"></Button>
+                    <Button Text="Direct" Clicked="ButtonDirect" BackgroundColor="Coral"></Button>
+                    <Button Text="Channels" Clicked="ButtonChannels" BackgroundColor="Chartreuse"></Button>
+                    <Button Text="Edit topic..." Clicked="ButtonEditTopic" BackgroundColor="DarkGreen"></Button>
+                </StackLayout>
+            </ContentPage.Content>
+        </ContentPage>
+    </MasterDetailPage.Master>
+
+    <MasterDetailPage.Detail>
+        <ContentPage>
+            <ContentPage.Content>
+                <Label Text="Detail page" VerticalOptions="Center" HorizontalOptions="Center"> </Label>
+            </ContentPage.Content>
+        </ContentPage>
+    </MasterDetailPage.Detail>
+
+</MasterDetailPage>
