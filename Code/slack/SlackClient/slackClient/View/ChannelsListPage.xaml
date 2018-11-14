@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SlackClient.Views.ChannelsListPage">
+
+    <StackLayout Spacing="18">
+        <ListView x:Name="chatsList" ItemsSource="{Binding Channels}"
+                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" 
+                  HasUnevenRows="True"
+                  IsPullToRefreshEnabled="True" 
+                  RefreshCommand="{Binding UpdateCommand}" 
+                  IsRefreshing="{Binding IsUpdating}" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout>
+                                <Label Text="{Binding ChannelName}" FontSize="Large" TextColor="Indigo"/>
+                                <Label Text="{Binding TextTopic}" FontSize="Large" TextColor="CadetBlue"/>
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>

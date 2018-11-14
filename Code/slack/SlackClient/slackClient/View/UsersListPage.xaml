@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SlackClient.Views.UsersListPage" Title="Users list">
+    <StackLayout Spacing="18">
+        <ListView x:Name="usersList" ItemsSource="{Binding Users}"
+                  SelectedItem="{Binding SelectedUser, Mode=TwoWay}" 
+                  HasUnevenRows="True"
+                  IsPullToRefreshEnabled="True" 
+                  RefreshCommand="{Binding UpdateCommand}" 
+                  IsRefreshing="{Binding IsUpdating}" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout  Spacing="30">
+                                <StackLayout Spacing="12" Orientation="Horizontal">
+                                    <Image Source="{Binding UserImage}"></Image>
+                                    <Label Text="{Binding User}" FontSize="Large" TextColor="Indigo"/>
+                                </StackLayout>
+                                <Label Text="{Binding UserId}" FontSize="Medium"/>
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>
