@@ -9,7 +9,9 @@ using System.Runtime.Serialization;
 [DataContract]
 public enum Error
 {
-        // Default value when not assigned.
+        /// <summary>
+        /// Default value when not assigned.
+        /// </summary>
         None,
 
         /// <summary>

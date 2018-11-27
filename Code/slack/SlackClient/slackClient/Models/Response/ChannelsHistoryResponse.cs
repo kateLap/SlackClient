@@ -5,6 +5,9 @@ namespace SlackClient.Models.Response
 {
         public class ChannelsHistoryResponse : SlackResponse
         {
-            public IEnumerable<Message> Messages { get; set; }
+        /// <summary>
+        /// Gets or sets the list of messages of current channel
+        /// </summary>
+        public IEnumerable<Message> Messages { get; set; }
         }
 }
