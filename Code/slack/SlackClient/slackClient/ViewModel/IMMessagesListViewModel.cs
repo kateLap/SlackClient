@@ -7,125 +7,193 @@ using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace SlackClient.ViewModels
 {
     public class IMMessagesListViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        /// <returns></returns>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Gets or sets the messages list.
+        /// </summary>
+        /// <value>
+        /// The messages.
+        /// </value>
         public ObservableCollection<ChatMessage> Messages { get; set; }
 
-        IEnumerable<Message> MessagesList { get; set; }
+        /// <summary>
+        /// Gets or sets the messages models list.
+        /// </summary>
+        /// <value>
+        /// The messages list.
+        /// </value>
+        private IEnumerable<Message> MessagesList { get; set; }
 
-        private ChatMessage message;
+        /// <summary>
+        /// The message
+        /// </summary>
+        private readonly ChatMessage _message;
 
-        IMListViewModel lvm;
-        public SlackAPI Slack { get; set; }
-        
-        private string imUser;
-        private string imCreatedTime;
-        private string imId;
-        private string imUserImage;
+        /// <summary>
+        /// Gets or sets the Slack API class.
+        /// </summary>
+        public SlackApi Slack { get; set; }
 
-        private Page page;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
-        private string textMessage;
+        /// <summary>
+        /// The user of the current dialog
+        /// </summary>
+        private string _imUser;
 
-        public string IMUser
+        public string ImUser
         {
-            get { return imUser; }
+            get => _imUser;
             set
             {
-                if (imUser != value)
-                {
-                    imUser = value;
-                    OnPropertyChanged("IMUser");
-                }
+                if (_imUser == value) return;
+
+                _imUser = value;
+
+                OnPropertyChanged("IMUser");
             }
         }
-        public string IMCreatedTime
+
+        /// <summary>
+        /// The dialog created time
+        /// </summary>
+        private string _imCreatedTime;
+
+        public string ImCreatedTime
         {
-            get { return imCreatedTime; }
+            get => _imCreatedTime;
             set
             {
-                if (imCreatedTime != value)
-                {
-                    imCreatedTime = value;
-                    OnPropertyChanged("IMCreatedTime");
-                }
+                if (_imCreatedTime == value) return;
+
+                _imCreatedTime = value;
+
+                OnPropertyChanged("IMCreatedTime");
             }
         }
+
+        /// <summary>
+        /// The dialog identifier
+        /// </summary>
+        private string _imId;
+
         public string IMId
         {
-            get { return imId; }
+            get => _imId;
             set
             {
-                if (imId != value)
-                {
-                    imId = value;
-                    OnPropertyChanged("Id");
-                }
+                if (_imId == value) return;
+
+                _imId = value;
+
+                OnPropertyChanged("Id");
             }
         }
+
+        /// <summary>
+        /// The im user image
+        /// </summary>
+        private string _imUserImage;
 
         public string IMUserImage
         {
-            get { return imUserImage; }
+            get => _imUserImage;
             set
             {
-                if (imUserImage != value)
-                {
-                    imUserImage = value;
-                    OnPropertyChanged("UserImage");
-                }
+                if (_imUserImage == value) return;
+
+                _imUserImage = value;
+
+                OnPropertyChanged("UserImage");
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IMMessagesListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
         public IMMessagesListViewModel(Page page)
         {
-            this.page = page;
-            message = new ChatMessage();
+            this._page = page;
+
+            _message = new ChatMessage();
+
             Messages = new ObservableCollection<ChatMessage>();
+
             this.SendMessageCommand = new Command(SendMessage);
         }
 
+        /// <summary>
+        /// The list view model
+        /// </summary>
+        private IMListViewModel _lvm;
+
         public IMListViewModel ListViewModel
         {
-            get => lvm;
+            get => _lvm;
             set
             {
-                if (lvm != value)
-                {
-                    lvm = value;
-                    OnPropertyChanged("ListViewModel");
-                }
+                if (_lvm == value) return;
+                _lvm = value;
+                OnPropertyChanged("ListViewModel");
             }
         }
 
+        /// <summary>
+        /// The text of the message
+        /// </summary>
+        private string _textMessage;
+
         public string TextMessage
         {
-            get => textMessage;
+            get => _textMessage;
             set
             {
-                textMessage = value;
+                _textMessage = value;
                 OnPropertyChanged("TextMessage");
             }
         }
 
+        /// <summary>
+        /// Gets or sets the send message command.
+        /// </summary>
+        /// <value>
+        /// The send message command.
+        /// </value>
         public ICommand SendMessageCommand { protected set; get; }
 
-        private bool isUpdating = false;
+        /// <summary>
+        /// The updating flag
+        /// </summary>
+        private bool _isUpdating = false;
+
         public bool IsUpdating
         {
-            get => isUpdating;
+            get => _isUpdating;
             set
             {
-                isUpdating = value;
+                _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
         }
 
+        /// <summary>
+        /// Sends the message to an user.
+        /// </summary>
         public async void SendMessage()
         {
             try
@@ -136,9 +204,9 @@ namespace SlackClient.ViewModels
                 var imMessages = (ChannelsHistoryResponse)Slack.Response;
                 MessagesList = imMessages.Messages;
 
-                if (textMessage != null)
+                if (_textMessage != null)
                 {
-                     var builder = new DefaultChatPostMessageBuilder(IMId, textMessage);
+                     var builder = new DefaultChatPostMessageBuilder(IMId, _textMessage);
                      var director = new ChatPostMessageDirector(builder);
                      await Slack.Send(builder.ChatPostMessage);
 
@@ -149,27 +217,27 @@ namespace SlackClient.ViewModels
                 var users = (UsersListResponse)Slack.Response;
 
                 Messages.Clear();
-                foreach (Message currentMessage in MessagesList)
+                foreach (var currentMessage in MessagesList)
                 {
-                    message.UserId = currentMessage.User;
-                    var user = users.Members.Where(x => x.Id == message.UserId);                   
+                    _message.UserId = currentMessage.User;
+                    var user = users.Members.Where(x => x.Id == _message.UserId);                   
 
                     if (user.Count() != 0)
                     {
-                        message.UserName = user.First().Profile.RealName;
-                        message.UserImage = user.First().Profile.Image72;
+                        _message.UserName = user.First().Profile.RealName;
+                        _message.UserImage = user.First().Profile.Image72;
                     }
                     else
                     {
-                        message.UserName = "";
+                        _message.UserName = "";
                     }
 
-                    message.Time = currentMessage.Ts.ToString();
-                    message.Text = currentMessage.Text;
+                    _message.Time = currentMessage.Ts.ToString();
+                    _message.Text = currentMessage.Text;
 
                     if (currentMessage.Type.Equals("message"))
                     {
-                        Messages.Add(message);
+                        Messages.Add(_message);
                     }
                 }
                 IsUpdating = false;
@@ -177,10 +245,14 @@ namespace SlackClient.ViewModels
             catch (SlackClientException e)
             {
                 IsUpdating = false;
-                await page.DisplayAlert("Error!", e.Message, "Ok");
+                await _page.DisplayAlert("Error!", e.Message, "Ok");
             }
         }
 
+        /// <summary>
+        /// Called when property changed.
+        /// </summary>
+        /// <param name="propName">Name of the property.</param>
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));

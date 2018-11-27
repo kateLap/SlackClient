@@ -93,9 +93,9 @@ namespace SlackClient.ViewModels
             try
             {
                 IsUpdating = true;
-                await slack.ChannelsList();
+                await Slack.ChannelsList();
 
-                var channels = (ChannelsListResponse)slack.Response;
+                var channels = (ChannelsListResponse)Slack.Response;
 
                 Channels.Clear();
                 foreach (var currentChannel in channels.Channels)
@@ -105,7 +105,7 @@ namespace SlackClient.ViewModels
                         TextTopic = currentChannel.Topic.Value,
                         ChannelName = currentChannel.Name,
                         ChannelId = currentChannel.Id,
-                        Slack = slack
+                        Slack = Slack
                     };
                     Channels.Add(newChat);
                 }

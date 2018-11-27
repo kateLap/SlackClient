@@ -11,66 +11,106 @@ namespace SlackClient.ViewModels
 {
     public class IMListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// Gets or sets the IMs list.
+        /// </summary>
+        /// <value>
+        /// The i ms.
+        /// </value>
         public ObservableCollection<IMMessagesListViewModel> IMs { get; set; }
 
+        /// <summary>
+        /// Gets or sets the update command.
+        /// </summary>
+        /// <value>
+        /// The update command.
+        /// </value>
         public ICommand UpdateCommand { protected set; get; }
+
+        /// <summary>
+        /// Gets or sets the navigation of this app.
+        /// </summary>
+        /// <value>
+        /// The navigation.
+        /// </value>
         public INavigation Navigation { get; set; }
 
+        /// <summary>
+        /// The selected im dialog
+        /// </summary>
         IMMessagesListViewModel selectedIM;
 
-        private Page page;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IMListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The page.</param>
         public IMListViewModel(Page page)
         {
-            this.page = page;
+            this._page = page;
             IMs = new ObservableCollection<IMMessagesListViewModel>();           
             Update();
             UpdateCommand = new Command(Update);
         }
 
+        /// <summary>
+        /// Gets or sets the selected im.
+        /// </summary>
+        /// <value>
+        /// The selected im.
+        /// </value>
         public IMMessagesListViewModel SelectedIM
         {
-            get { return selectedIM; }
+            get => selectedIM;
             set
             {
-                if (selectedIM != value)
-                {
-                    IMMessagesListViewModel tempChat = value;
-                    tempChat.Messages.Clear();
-                    tempChat.SendMessage();
+                if (selectedIM == value) return;
+                var tempChat = value;
+                tempChat.Messages.Clear();
+                tempChat.SendMessage();
                     
-                    selectedIM = null;
-                    OnPropertyChanged("SelectedIM");
-                    Navigation.PushAsync(new IMMessagesPage(tempChat));
-                }
+                selectedIM = null;
+                OnPropertyChanged("SelectedIM");
+                Navigation.PushAsync(new IMMessagesPage(tempChat));
             }
         }
 
-        private bool isUpdating = false;
+        /// <summary>
+        /// The updating page flag
+        /// </summary>
+        private bool _isUpdating = false;
+
         public bool IsUpdating
         {
-            get { return isUpdating; }
+            get => _isUpdating;
             set
             {
-                isUpdating = value;
+                _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
         }
 
+        /// <summary>
+        /// Updates this page.
+        /// </summary>
         private async void Update()
         {
             try
             {
                 IsUpdating = true;
-                await slack.IMList();
-                var channels = (IMListResponse)slack.Response;
+                await Slack.IMList();
+                var channels = (IMListResponse)Slack.Response;
 
-                await slack.UsersList();
-                UsersListResponse users = (UsersListResponse)slack.Response;
+                await Slack.UsersList();
+                var users = (UsersListResponse)Slack.Response;
 
                 IMs.Clear();
 
-                foreach (IMChannel currentChannel in channels.Channels)
+                foreach (var currentChannel in channels.Channels)
                 {
 
                 string userName;
@@ -88,13 +128,13 @@ namespace SlackClient.ViewModels
                     image = user.First().Profile.Image72;
                 }
 
-                var newIM = new IMMessagesListViewModel(page)
+                var newIM = new IMMessagesListViewModel(_page)
                 {
-                    IMUser = userName,
-                    IMCreatedTime = currentChannel.Created.ToString(),
+                    ImUser = userName,
+                    ImCreatedTime = currentChannel.Created.ToString(),
                     IMId = currentChannel.Id,
                     IMUserImage = image,
-                    Slack = this.slack
+                    Slack = this.Slack
                 };
 
                 IMs.Add(newIM);
@@ -105,7 +145,7 @@ namespace SlackClient.ViewModels
                 catch (SlackClientException e)
                 {
                 IsUpdating = false;
-                await page.DisplayAlert("Error!", e.Message, "Ok");
+                await _page.DisplayAlert("Error!", e.Message, "Ok");
                 }
         }
     }

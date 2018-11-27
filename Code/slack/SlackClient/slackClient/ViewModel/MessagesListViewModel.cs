@@ -13,188 +13,245 @@ namespace SlackClient.ViewModels
 {
     public class MessagesListViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Gets or sets the send message command.
+        /// </summary>
+        /// <value>
+        /// The send message command.
+        /// </value>
         public ICommand SendMessageCommand { protected set; get; }
 
+        /// <summary>
+        /// Gets or sets the messages list.
+        /// </summary>
+        /// <value>
+        /// The messages.
+        /// </value>
         public ObservableCollection<ChatMessage> Messages { get; set; }
-        private ChatMessage message;
 
-        ChatsListViewModel lvm;
+        /// <summary>
+        /// Gets or sets the Slack API class.
+        /// </summary>
+        /// <value>
+        /// The slack.
+        /// </value>
+        public SlackApi Slack { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessagesListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The page.</param>
+        public MessagesListViewModel(Page page)
+        {
+            this._page = page;
+            _message = new ChatMessage();
+            Messages = new ObservableCollection<ChatMessage>();
+            SendMessageCommand = new Command(SendMessage);
+        }
+
+        /// <summary>
+        /// The message
+        /// </summary>
+        private readonly ChatMessage _message;
+
+        /// <summary>
+        /// Gets or sets the navigation of this app.
+        /// </summary>
+        /// <value>
+        /// The navigation.
+        /// </value>
         public INavigation Navigation { get; set; }
 
-        EditTopicViewModel selectedEdit;//
+        /// <summary>
+        /// The selected list view model
+        /// </summary>
+        EditTopicViewModel _selectedEdit;
 
-        private string chatName;
-        private string chatCreatedTime;
-        private string chatTopic;
-        private string chatId;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
-        private readonly Page page;
+        /// <summary>
+        /// Gets or sets the messages list.
+        /// </summary>
+        /// <value>
+        /// The messages list.
+        /// </value>
+        private IEnumerable<Message> MessagesList { get; set; }
 
-        IEnumerable<Message> MessagesList { get; set; }
-
-        public SlackAPI Slack { get; set; }
+        /// <summary>
+        /// The chat name
+        /// </summary>
+        private string _chatName;
 
         public string ChatName
         {
-            get => chatName;
+            get => _chatName;
             set
             {
-                if (chatName != value)
-                {
-                    chatName = value;
-                    OnPropertyChanged("ChatName");
-                }
+                if (_chatName == value) return;
+                _chatName = value;
+                OnPropertyChanged("ChatName");
             }
         }
+
+        /// <summary>
+        /// The chat created time
+        /// </summary>
+        private string _chatCreatedTime;
+
         public string ChatCreatedTime
         {
-            get => chatCreatedTime;
+            get => _chatCreatedTime;
             set
             {
-                if (chatCreatedTime != value)
-                {
-                    chatCreatedTime = value;
-                    OnPropertyChanged("ChatCreatedTime");
-                }
+                if (_chatCreatedTime == value) return;
+                _chatCreatedTime = value;
+                OnPropertyChanged("ChatCreatedTime");
             }
         }
+
+        /// <summary>
+        /// The chat topic
+        /// </summary>
+        private string _chatTopic;
+
         public string ChatTopic
         {
-            get => chatTopic;
+            get => _chatTopic;
             set
             {
-                if (chatTopic != value)
-                {
-                    chatTopic = value;
-                    OnPropertyChanged("ChatTopic");
-                }
+                if (_chatTopic == value) return;
+                _chatTopic = value;
+                OnPropertyChanged("ChatTopic");
             }
         }
+
+        /// <summary>
+        /// The chat identifier
+        /// </summary>
+        private string _chatId;
 
         public string ChatId
         {
-            get => chatId;
+            get => _chatId;
             set
             {
-                if (chatId != value)
-                {
-                    chatId = value;
-                    OnPropertyChanged("ChatId");
-                }
+                if (_chatId == value) return;
+                _chatId = value;
+                OnPropertyChanged("ChatId");
             }
         }
 
-        public MessagesListViewModel(Page page)
-        {
-            this.page = page;
-            message = new ChatMessage();
-            Messages = new ObservableCollection<ChatMessage>();
-            SendMessageCommand = new Command(SendMessage);//
-        }
+        /// <summary>
+        /// The chats list view model
+        /// </summary>
+        private ChatsListViewModel _lvm;
 
         public ChatsListViewModel ListViewModel
         {
-            get => lvm;
+            get => _lvm;
             set
             {
-                if (lvm != value)
-                {
-                    lvm = value;
-                    OnPropertyChanged("ListViewModel");
-                }
+                if (_lvm == value) return;
+                _lvm = value;
+                OnPropertyChanged("ListViewModel");
             }
         }
 
-        private bool isUpdating=false;
+        /// <summary>
+        /// The updating flag
+        /// </summary>
+        private bool _isUpdating=false;
+
         public bool IsUpdating
         {
-            get => isUpdating;
+            get => _isUpdating;
             set
             {
-                isUpdating = value;
+                _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
         }
 
-        private string textMessage;
+        /// <summary>
+        /// The text of the message
+        /// </summary>
+        private string _textMessage;
+
         public string TextMessage
         {
-            get => textMessage;
+            get => _textMessage;
             set
             {
-                textMessage = value;
+                _textMessage = value;
                 OnPropertyChanged("TextMessage");
             }
         }
 
-       /* private async void EditTopic()
-        {
-            EditTopicViewModel tempChat = value;
-            selectedChat = null;
-            OnPropertyChanged("SelectedChat");
-            Navigation.PushAsync(new ChatMessagesPage(tempChat));
-            // EditTopicViewModel tempEdit = new EditTopicViewModel();
-            // tempEdit.TextTopic = String.Empty;
-            // Navigation.PushAsync(new EditTopicPage(tempChat));
-        }*/
-
-
+        /// <summary>
+        /// Sends the message.
+        /// </summary>
         public async void SendMessage()
         {
             IsUpdating = true;
-            try{
+            var channels = (ChannelsListResponse)Slack.Response;
+
+            try
+            {
                 await Slack.ChannelsList();
-                ChannelsListResponse channels = (ChannelsListResponse)Slack.Response;
-                var chan = channels.Channels.Where(x => x.Name == chatName).Single();
+                var chan = channels.Channels.Single(x => x.Name == _chatName);
                 var chanId = chan.Id;
 
-
-                await Slack.ChatPostMessage(chanId, textMessage, null, true);
+                await Slack.ChatPostMessage(chanId, _textMessage, null, true);
                 TextMessage = null;
 
                 await Slack.ChannelsHistory(chanId);
-                ChannelsHistoryResponse channelsHistory = (ChannelsHistoryResponse)Slack.Response;
+                var channelsHistory = (ChannelsHistoryResponse)Slack.Response;
 
-                MessagesList = channelsHistory.Messages;//.Reverse();
+                MessagesList = channelsHistory.Messages;
 
                 await Slack.UsersList();
-                UsersListResponse users = (UsersListResponse)Slack.Response;
+                var users = (UsersListResponse)Slack.Response;
 
                 Messages.Clear();
-                foreach (Message currentMessage in MessagesList)
+                foreach (var currentMessage in MessagesList)
                 {
-                    message.UserId = currentMessage.User;
+                    _message.UserId = currentMessage.User;
 
-                    var user = users.Members.Where(x => x.Id == message.UserId);
+                    var user = users.Members.Where(x => x.Id == _message.UserId);
 
-                    if (user.Count() != 0)
-                        message.UserName = user.First().Name;
-                    else
-                        message.UserName = "";
+                    _message.UserName = user.Count() != 0 ? user.First().Name : "";
 
-                    message.Time = currentMessage.Ts.ToString();
-                    message.Text = currentMessage.Text;
+                    _message.Time = currentMessage.Ts.ToString();
+                    _message.Text = currentMessage.Text;
 
                     if (currentMessage.Type.Equals("message"))
                     {
-                        Messages.Add(message);
+                        Messages.Add(_message);
                     }
 
                     IsUpdating = false;
-                }
-                
+                }                
             }
             catch (SlackClientException e)
             {
                 IsUpdating = false;
-                await page.DisplayAlert("Error!", e.Message, "Ok");
+                await _page.DisplayAlert("Error!", e.Message, "Ok");
             }
             
         }
 
+        /// <summary>
+        /// Called when property changed.
+        /// </summary>
+        /// <param name="propName">Name of the property.</param>
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));

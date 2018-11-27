@@ -2,10 +2,13 @@
 
 namespace SlackClient.Models
 {
+    /// <summary>
+    /// Converts string to a camel case
+    /// </summary>
+    /// <seealso cref="Newtonsoft.Json.Serialization.DefaultContractResolver" />
     public class SlackPropertyNamesContractResolver : DefaultContractResolver
     {
-        public SlackPropertyNamesContractResolver()
-          : base()
+        public SlackPropertyNamesContractResolver() : base()
         {
         }
 

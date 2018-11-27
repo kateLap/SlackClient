@@ -14,67 +14,100 @@ namespace SlackClient.ViewModels
 {
     public class UsersListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// Gets or sets the users list.
+        /// </summary>
+        /// <value>
+        /// The users.
+        /// </value>
         public ObservableCollection<UsersProfileViewModel> Users { get; set; }
 
+        /// <summary>
+        /// Gets or sets the update command.
+        /// </summary>
+        /// <value>
+        /// The update command.
+        /// </value>
         public ICommand UpdateCommand { protected set; get; }
+
+        /// <summary>
+        /// Gets or sets the navigation.
+        /// </summary>
+        /// <value>
+        /// The navigation.
+        /// </value>
         public INavigation Navigation { get; set; }
 
-        UsersProfileViewModel selectedUser;
+        /// <summary>
+        /// The selected user
+        /// </summary>
+        private UsersProfileViewModel _selectedUser;
 
-        private Page page;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsersListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
         public UsersListViewModel(Page page)
         {
-            this.page = page;
+            this._page = page;
             Users = new ObservableCollection<UsersProfileViewModel>();
             Update();
             UpdateCommand = new Command(Update);
         }
 
+        /// <summary>
+        /// Gets or sets the selected user.
+        /// </summary>
+        /// <value>
+        /// The selected user.
+        /// </value>
         public UsersProfileViewModel SelectedUser
         {
-            get => selectedUser;
+            get => _selectedUser;
             set
             {
-                if (selectedUser != value)
-                {
-                    UsersProfileViewModel tempUser = value;
+                if (_selectedUser == value) return;
+                var tempUser = value;
 
+                tempUser.UpdateChannels();
 
-                   // tempUser.Channels.Clear();////
-                    tempUser.UpdateChannels();
-
-                    selectedUser = null;
-                    OnPropertyChanged("SelectedUser");
-                    Navigation.PushAsync(new UsersProfilePage(tempUser));
-                }
+                _selectedUser = null;
+                OnPropertyChanged("SelectedUser");
+                Navigation.PushAsync(new UsersProfilePage(tempUser));
             }
         }
 
-        private bool isUpdating = false;
+        private bool _isUpdating = false;
+
         public bool IsUpdating
         {
-            get => isUpdating;
+            get => _isUpdating;
             set
             {
-                isUpdating = value;
+                _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
         }
 
+        /// <summary>
+        /// Updates this page.
+        /// </summary>
         private async void Update()
         {
             try
             {
                 IsUpdating = true;
+                
+                await Slack.IMList();
+                var ims = (IMListResponse)Slack.Response;
 
-
-                await slack.IMList();//
-                var ims = (IMListResponse)slack.Response;//
-
-
-                await slack.UsersList();//
-                UsersListResponse users = (UsersListResponse)slack.Response;//
+                await Slack.UsersList();
+                var users = (UsersListResponse)Slack.Response;
 
                 Users.Clear();
 
@@ -98,20 +131,20 @@ namespace SlackClient.ViewModels
                         email = user.First().Name;
                     }
 
-                    var newUser = new UsersProfileViewModel(page)
+                    var newUser = new UsersProfileViewModel(_page)
                     {
                         User = userName,
                         UserId = item.User,
                         UserImage = image,
                         UserEmail = email,
-                        Slack = this.slack
+                        Slack = this.Slack
                     };
 
-                    await slack.AuthTest();//
-                    var profile = (AuthTestResponse)slack.Response;//
-                    string id = profile.UserId;//
+                    await Slack.AuthTest();
+                    var profile = (AuthTestResponse)Slack.Response;
+                    var id = profile.UserId;
                     
-                    if (item.User != id)////////////////
+                    if (item.User != id)
                     {
                         Users.Add(newUser);
                     }
@@ -122,7 +155,7 @@ namespace SlackClient.ViewModels
             catch (SlackClientException e)
             {
                 IsUpdating = false;
-                await page.DisplayAlert("Error!", e.Message, "Ok");
+                await _page.DisplayAlert("Error!", e.Message, "Ok");
             }
         }
     }

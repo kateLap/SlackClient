@@ -14,74 +14,107 @@ namespace SlackClient.ViewModels
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        ChannelsListViewModel lvm;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
-        private Page page;
+        /// <summary>
+        /// Gets or sets the class of Slack API.
+        /// </summary>
+        public SlackApi Slack { get; set; }
 
-        public SlackAPI Slack { get; set; }
-
+        /// <summary>
+        /// Gets or sets the set topic command.
+        /// </summary>
+        /// <value>
+        /// The set topic command.
+        /// </value>
         public ICommand SetTopicCommand { protected set; get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EditTopicViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
         public EditTopicViewModel(Page page)
         {
-            this.page = page;
+            this._page = page;
             SetTopicCommand = new Command(SetTopic);
         }
 
+        /// <summary>
+        /// The channels list view model
+        /// </summary>
+        ChannelsListViewModel _lvm;
+
+        /// <summary>
+        /// Gets or sets the list view model.
+        /// </summary>
+        /// <value>
+        /// The ListView model.
+        /// </value>
         public ChannelsListViewModel ListViewModel
         {
-            get => lvm;
+            get => _lvm;
             set
             {
-                if (lvm != value)
-                {
-                    lvm = value;
-                    OnPropertyChanged("MessagesListViewModel");
-                }
+                if (_lvm == value) return;
+                _lvm = value;
+                OnPropertyChanged("MessagesListViewModel");
             }
         }
 
-        private string channelId;
+        /// <summary>
+        /// The channel identifier
+        /// </summary>
+        private string _channelId;
 
         public string ChannelId
         {
-            get => channelId;
+            get => _channelId;
             set
             {
-                if (channelId != value)
-                {
-                    channelId = value;
-                    OnPropertyChanged("ChannelId");
-                }
+                if (_channelId == value) return;
+                _channelId = value;
+                OnPropertyChanged("ChannelId");
             }
         }
 
-        private string channelName;
+        /// <summary>
+        /// The channel name
+        /// </summary>
+        private string _channelName;
 
         public string ChannelName
         {
-            get => channelName;
+            get => _channelName;
             set
             {
-                if (channelName != value)
-                {
-                    channelName = value;
-                    OnPropertyChanged("ChannelName");
-                }
+                if (_channelName == value) return;
+                _channelName = value;
+                OnPropertyChanged("ChannelName");
             }
         }
 
-        private string textTopic;
+        /// <summary>
+        /// The topic text to set
+        /// </summary>
+        private string _textTopic;
+
         public string TextTopic
         {
-            get => textTopic;
+            get => _textTopic;
             set
             {
-                textTopic = value;
+                _textTopic = value;
                 OnPropertyChanged("TextTopic");
             }
         }
 
+        /// <summary>
+        /// Sets the topic of a channel.
+        /// </summary>
+        /// <exception cref="SlackClient.Models.SlackClientException">You don't have administrator opportunities</exception>
         private async void SetTopic()
         {
             try
@@ -93,7 +126,7 @@ namespace SlackClient.ViewModels
                 await Slack.UsersList();
                 var listResponse = (UsersListResponse)Slack.Response;
 
-                bool isOwner = false;
+                var isOwner = false;
 
                 foreach (var user in listResponse.Members)
                 {
@@ -115,11 +148,14 @@ namespace SlackClient.ViewModels
             }
             catch (SlackClientException e)
             {
-                await page.DisplayAlert("Error!", "You cannot change the topic of the channel", "Ok");
+                await _page.DisplayAlert("Error!", "You cannot change the topic of the channel", "Ok");
             }
         }
 
-
+        /// <summary>
+        /// Called when property changed.
+        /// </summary>
+        /// <param name="propName">Name of the property.</param>
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));

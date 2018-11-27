@@ -3,17 +3,34 @@ using System.ComponentModel;
 
 namespace SlackClient.ViewModels
 {
+    /// <summary>
+    /// The main page for application pages
+    /// </summary>
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public class SlackPageViewModel : INotifyPropertyChanged
     {
-        protected SlackAPI slack;
+        /// <summary>
+        /// The Slack API class
+        /// </summary>
+        protected SlackApi Slack;
 
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SlackPageViewModel"/> class.
+        /// </summary>
         public SlackPageViewModel()
         {
-            slack = new SlackAPI("xoxp-341336893090-341336893346-488785318771-dbac2fd6d0662bc21bfe3afee85f10f7");
+            Slack = new SlackApi("");
         }
 
+        /// <summary>
+        /// Called when property changed]
+        /// </summary>
+        /// <param name="propName">Name of the property.</param>
         protected void OnPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));

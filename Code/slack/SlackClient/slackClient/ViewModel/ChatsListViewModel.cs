@@ -3,6 +3,7 @@ using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 using SlackClient.Views;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -10,68 +11,97 @@ namespace SlackClient.ViewModels
 {
     public class ChatsListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// Gets or sets the chats list.
+        /// </summary>
         public ObservableCollection<MessagesListViewModel> Chats { get; set; }
 
+        /// <summary>
+        /// Gets or sets the update command.
+        /// </summary>
         public ICommand UpdateCommand { protected set; get; }
 
-        MessagesListViewModel selectedChat;
+        /// <summary>
+        /// The selected chat
+        /// </summary>
+        private MessagesListViewModel _selectedChat;
 
-        private Page page;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
+        /// <summary>
+        /// Gets or sets the navigation of the app.
+        /// </summary>
         public INavigation Navigation { get; set; }
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatsListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
         public ChatsListViewModel(Page page)
         {
-            this.page = page;
+            this._page = page;
             Chats = new ObservableCollection<MessagesListViewModel>();
             UpdateCommand = new Command(Update);
             Update();
         }
 
+        /// <summary>
+        /// Gets or sets the selected chat.
+        /// </summary>
         public MessagesListViewModel SelectedChat
         {
-            get => selectedChat;
+            get => _selectedChat;
             set
             {
-                if (selectedChat != value)
+                if (_selectedChat != value)
                 {
                     MessagesListViewModel tempChat = value;
                     tempChat.Messages.Clear();
                     tempChat.SendMessage();                    
-                    selectedChat = null;
+                    _selectedChat = null;
                     OnPropertyChanged("SelectedChat");
                     Navigation.PushAsync(new ChatMessagesPage(tempChat));
                 }
             }
         }
 
-        private bool isUpdating = false;
+        /// <summary>
+        /// The page updating flag
+        /// </summary>
+        private bool _isUpdating = false;
+
         public bool IsUpdating
         {
-            get => isUpdating;
+            get => _isUpdating;
             set
             {
-                isUpdating = value;
+                _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
         }
 
+        /// <summary>
+        /// Updates this page.
+        /// </summary>
         private async void Update()
         {
             try
             {
                 IsUpdating = true;
-                await slack.ChannelsList();
+                await Slack.ChannelsList();
 
-                var channels = (ChannelsListResponse)slack.Response;
+                var channels = (ChannelsListResponse)Slack.Response;
 
                 Chats.Clear();
                 foreach (var currentChannel in channels.Channels)
                 {
-                    var newChat = new MessagesListViewModel(page) {
+                    var newChat = new MessagesListViewModel(_page) {
                         ChatName = currentChannel.Name,
-                        Slack = this.slack,
-                        ChatCreatedTime = currentChannel.Created.ToString(),
+                        Slack = this.Slack,
+                        ChatCreatedTime = currentChannel.Created.ToString(CultureInfo.InvariantCulture),
                         ChatTopic = currentChannel.Topic.Value,
                         ChatId = currentChannel.Id
                     };
@@ -82,7 +112,7 @@ namespace SlackClient.ViewModels
             catch (SlackClientException e)
             {
                 IsUpdating = false;
-                await page.DisplayAlert("Error!", e.Message, "Ok");
+                await _page.DisplayAlert("Error!", e.Message, "Ok");
             }
         }
     }

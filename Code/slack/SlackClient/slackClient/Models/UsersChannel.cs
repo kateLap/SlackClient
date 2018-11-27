@@ -6,7 +6,14 @@ namespace SlackClient.Models
 {
     public class UsersChannel
     {
-       public string Name { get; set; }
-       public string Id { get; set; }
+        /// <summary>
+        /// Gets or sets the name of the channel
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the channel
+        /// </summary>
+        public string Id { get; set; }
     }
 }

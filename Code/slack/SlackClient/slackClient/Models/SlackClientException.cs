@@ -3,8 +3,13 @@ using SlackClient.Models.Response;
 
 namespace SlackClient.Models
 {
+    /// <summary>
+    /// Defines Slack client exception
+    /// </summary>
+    /// <seealso cref="System.Exception" />
     public class SlackClientException : Exception
     {
+
         public SlackClientException()
         {
         }

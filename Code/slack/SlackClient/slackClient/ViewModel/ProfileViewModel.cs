@@ -10,81 +10,18 @@ namespace SlackClient.ViewModels
 {
     public class ProfileViewModel : SlackPageViewModel
     {
-        private string userName;
-        private string userImage;
-        private string userEmail;
-        private string workspaceUrl;
-        private string workspaceTeam;
-
-        private Page page;
-
-        public string UserName
-        {
-            get { return userName; }
-            set
-            {
-                if (userName != value)
-                {
-                    userName = value;
-                    OnPropertyChanged("UserName");
-                }
-            }
-        }
-
-        public string UserImage
-        {
-            get { return userImage; }
-            set
-            {
-                if (userImage != value)
-                {
-                    userImage = value;
-                    OnPropertyChanged("UserImage");
-                }
-            }
-        }
-
-        public string UserEmail
-        {
-            get { return userEmail; }
-            set
-            {
-                if (userEmail != value)
-                {
-                    userEmail = value;
-                    OnPropertyChanged("UserEmail");
-                }
-            }
-        }
-
-        public string WorkspaceUrl
-        {
-            get { return workspaceUrl; }
-            set
-            {
-                if (workspaceUrl != value)
-                {
-                    workspaceUrl = value;
-                    OnPropertyChanged("WorkspaceUrl");
-                }
-            }
-        }
-
-        public string WorkspaceTeam
-        {
-            get { return workspaceTeam; }
-            set
-            {
-                if (workspaceTeam != value)
-                {
-                    workspaceTeam = value;
-                    OnPropertyChanged("WorkspaceTeam");
-                }
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the update command.
+        /// </summary>
+        /// <value>
+        /// The update command.
+        /// </value>
         public ICommand UpdateCommand { protected set; get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProfileViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
         public ProfileViewModel(Page page)
         {
             this.page = page;
@@ -92,22 +29,114 @@ namespace SlackClient.ViewModels
             Update();
         }
 
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page page;
+
+        /// <summary>
+        /// The user's name
+        /// </summary>
+        private string _userName;
+
+        public string UserName
+        {
+            get => _userName;
+            set
+            {
+                if (_userName == value) return;
+                _userName = value;
+                OnPropertyChanged("UserName");
+            }
+        }
+
+        /// <summary>
+        /// The user's image
+        /// </summary>
+        private string _userImage;
+
+        public string UserImage
+        {
+            get => _userImage;
+            set
+            {
+                if (_userImage == value) return;
+                _userImage = value;
+                OnPropertyChanged("UserImage");
+            }
+        }
+
+        /// <summary>
+        /// The user's email
+        /// </summary>
+        private string _userEmail;
+
+        public string UserEmail
+        {
+            get => _userEmail;
+            set
+            {
+                if (_userEmail == value) return;
+                _userEmail = value;
+                OnPropertyChanged("UserEmail");
+            }
+        }
+
+        /// <summary>
+        /// The workspace URL
+        /// </summary>
+        private string _workspaceUrl;
+
+        public string WorkspaceUrl
+        {
+            get => _workspaceUrl;
+            set
+            {
+                if (_workspaceUrl == value) return;
+                _workspaceUrl = value;
+                OnPropertyChanged("WorkspaceUrl");
+            }
+        }
+
+        /// <summary>
+        /// The workspace team
+        /// </summary>
+        private string _workspaceTeam;
+
+        public string WorkspaceTeam
+        {
+            get => _workspaceTeam;
+            set
+            {
+                if (_workspaceTeam == value) return;
+                _workspaceTeam = value;
+                OnPropertyChanged("WorkspaceTeam");
+            }
+        }
+
+        /// <summary>
+        /// Updates this page.
+        /// </summary>
         private async void Update()
         {
             try
             {
-                await slack.AuthTest();
-                var auth = (AuthTestResponse)slack.Response;
+                await Slack.AuthTest();
+                var auth = (AuthTestResponse)Slack.Response;
 
-                await slack.UsersList();
-                var users = (UsersListResponse)slack.Response;
+                await Slack.UsersList();
+                var users = (UsersListResponse)Slack.Response;
 
-                var user = users.Members.Where(x => x.Id == auth.UserId).Single();
+                var user = users.Members.Single(x => x.Id == auth.UserId);
+
                 UserImage = user.Profile.Image512;
+
                 UserName = user.Profile.RealName;
+
                 UserEmail = user.IsPrimaryOwner.ToString();
 
-          WorkspaceUrl = auth.Url;
+                WorkspaceUrl = auth.Url;
+
                 WorkspaceTeam = auth.Team;
             }
             catch(SlackClientException e)
