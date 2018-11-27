@@ -11,7 +11,7 @@ namespace SlackClient.ViewModels
 
         public SlackPageViewModel()
         {
-            slack = new SlackAPI("");
+            slack = new SlackAPI("xoxp-341336893090-341336893346-488785318771-dbac2fd6d0662bc21bfe3afee85f10f7");
         }
 
         protected void OnPropertyChanged(string propName)

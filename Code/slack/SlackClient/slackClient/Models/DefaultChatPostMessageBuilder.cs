@@ -2,22 +2,34 @@
 
 namespace SlackClient.Models
 {
+    /// <summary>
+    /// This class defines default default builder for sending message
+    /// </summary>
     public class DefaultChatPostMessageBuilder : IChatPostMessageBuilder
     {
+        /// <summary>
+        /// Sets required parameters for the method Post message
+        /// </summary>
+        /// <param name="channelId">ID of the channel which receives the message</param>
+        /// <param name="text">The text of the channel</param>
         public DefaultChatPostMessageBuilder(string channelId, string text)
         {
-            //TODO: В модели ChatPostMessage создать по свойству на каждый параметр.
-            //TODO: Обязательные параметры инициализировать через конструктор, необязательные - через проперти.
-            ChatPostMessage = new List<KeyValuePair<string, string>>(){
-                // Required arguments
+            ChatPostMessage = new List<KeyValuePair<string, string>>()
+            {
                 Pair("channel", channelId),
                 Pair("text", text)
             };
         }
 
-        // TODO: Сделать отдельную модель для ChatPostMessage
+        /// <summary>
+        /// Collection for parameters for Post message method
+        /// </summary>
         public ICollection<KeyValuePair<string, string>> ChatPostMessage { get; }
         
+        /// <summary>
+        /// Sets user's name
+        /// </summary>
+        /// <param name="name">user's name</param>
         public void BuildUserName(string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
@@ -26,26 +38,41 @@ namespace SlackClient.Models
             }
         }
 
+        /// <summary>
+        /// If it's true the message will be post from user's name
+        /// </summary>
         public void BuildAsUser(bool asUser)
         {
             ChatPostMessage.Add(Pair("as_user", asUser));
         }
 
+        /// <summary>
+        /// Pass true to enable unfurling of primarily text-based content
+        /// </summary>
         public void BuildUnfurlLinks(bool isUnfurl)
         {
             ChatPostMessage.Add(Pair("unfurl_links", isUnfurl));
         }
 
-        public void BuildLinkNames(bool isAvailable)
+        /// <summary>
+        /// Find and link channel names and usernames
+        /// </summary>
+        public void BuildLinkNames(string linkNames)
         {
-            ChatPostMessage.Add(Pair("unfurl_links", isAvailable));
+            ChatPostMessage.Add(Pair("link_names", linkNames));
         }
 
-        public void BuildUnfurlMedia(bool isAvailable)
+        /// <summary>
+        /// Pass false to disable unfurling of media content
+        /// </summary>
+        public void BuildUnfurlMedia(bool unfurlMedia)
         {
-           ChatPostMessage.Add(Pair("unfurl_links", isAvailable));
+            ChatPostMessage.Add(Pair("unfurl_media", unfurlMedia));
         }
 
+        /// <summary> 	
+        /// URL to an image to use as the icon for this message
+        /// </summary>
         public void BuildIconUrl(string url)
         {
             if (!string.IsNullOrWhiteSpace(url))
@@ -54,6 +81,9 @@ namespace SlackClient.Models
             }
         }
 
+        /// <summary>
+        ///Emoji to use as the icon for this message
+        /// </summary>
         public void BuildIconEmoji(string emoji)
         {
             if (!string.IsNullOrWhiteSpace(emoji))

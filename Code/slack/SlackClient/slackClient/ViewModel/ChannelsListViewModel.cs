@@ -13,51 +13,81 @@ namespace SlackClient.ViewModels
 {
     public class ChannelsListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// Channels list
+        /// </summary>
         public ObservableCollection<EditTopicViewModel> Channels { get; set; }
 
+        /// <summary>
+        /// Command to update current page
+        /// </summary>
         public ICommand UpdateCommand { protected set; get; }
 
-        private readonly Page page;
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
 
+        /// <summary>
+        /// Navigation of this app
+        /// </summary>
         public INavigation Navigation { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelsListViewModel"/> class.
+        /// </summary>
         public ChannelsListViewModel(Page page)
         {
-            this.page = page;
+            this._page = page;
             Channels = new ObservableCollection<EditTopicViewModel>();
             UpdateCommand = new Command(Update);
             Update();
         }
 
-        EditTopicViewModel selectedChannel;
+        /// <summary>
+        /// The selected channel
+        /// </summary>
+        private EditTopicViewModel _selectedChannel;
 
+        /// <summary>
+        /// Gets or sets the selected channel.
+        /// </summary>
+        /// <value>
+        /// The selected channel.
+        /// </value>
         public EditTopicViewModel SelectedChannel
         {
-            get => selectedChannel;
+            get => _selectedChannel;
             set
             {
-                if (selectedChannel != value)
+                if (_selectedChannel != value)
                 {
                     EditTopicViewModel tempChannel = value;
 
-                    selectedChannel = null;
+                    _selectedChannel = null;
                     OnPropertyChanged("SelectedChannel");
                     Navigation.PushAsync(new EditTopicPage(tempChannel));
                 }
             }
         }
 
-        private bool isUpdating = false;
+        /// <summary>
+        /// Updating page flag.
+        /// </summary>
+        private bool _isUpdating = false;
         public bool IsUpdating
         {
-            get => isUpdating;
+            get => _isUpdating;
             set
             {
-                isUpdating = value;
+                _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
         }
-        
+
+        /// <summary>
+        /// Updates this page.
+        /// </summary>
         private async void Update()
         {
             try
@@ -68,9 +98,9 @@ namespace SlackClient.ViewModels
                 var channels = (ChannelsListResponse)slack.Response;
 
                 Channels.Clear();
-                foreach (Channel currentChannel in channels.Channels)
+                foreach (var currentChannel in channels.Channels)
                 {
-                    var newChat = new EditTopicViewModel(page)
+                    var newChat = new EditTopicViewModel(_page)
                     {
                         TextTopic = currentChannel.Topic.Value,
                         ChannelName = currentChannel.Name,
@@ -84,7 +114,7 @@ namespace SlackClient.ViewModels
             catch (SlackClientException e)
             {
                 IsUpdating = false;
-                await page.DisplayAlert("Error!", e.Message, "Ok");
+                await _page.DisplayAlert("Error!", e.Message, "Ok");
             }
         }
     }
