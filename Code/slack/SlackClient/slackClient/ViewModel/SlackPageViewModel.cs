@@ -1,5 +1,6 @@
-﻿using SlackClient.Models;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+
+using SlackClient.Models;
 
 namespace SlackClient.ViewModels
 {

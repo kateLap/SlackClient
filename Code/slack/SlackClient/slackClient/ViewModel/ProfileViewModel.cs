@@ -1,15 +1,22 @@
 ﻿using System;
-using SlackClient.Models;
-using SlackClient.Models.Response;
 using System.Linq;
 using System.Windows.Input;
+
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+
+using SlackClient.Models;
+using SlackClient.Models.Response;
 
 namespace SlackClient.ViewModels
 {
     public class ProfileViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page page;
+
         /// <summary>
         /// Gets or sets the update command.
         /// </summary>
@@ -17,22 +24,6 @@ namespace SlackClient.ViewModels
         /// The update command.
         /// </value>
         public ICommand UpdateCommand { protected set; get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProfileViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The current page.</param>
-        public ProfileViewModel(Page page)
-        {
-            this.page = page;
-            UpdateCommand = new Command(Update);
-            Update();
-        }
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page page;
 
         /// <summary>
         /// The user's name
@@ -115,6 +106,17 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ProfileViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
+        public ProfileViewModel(Page page)
+        {
+            this.page = page;
+            UpdateCommand = new Command(Update);
+            Update();
+        }
+
+        /// <summary>
         /// Updates this page.
         /// </summary>
         private async void Update()
@@ -122,10 +124,10 @@ namespace SlackClient.ViewModels
             try
             {
                 await Slack.AuthTest();
-                var auth = (AuthTestResponse)Slack.Response;
+                var auth = (AuthTestResponse) Slack.Response;
 
                 await Slack.UsersList();
-                var users = (UsersListResponse)Slack.Response;
+                var users = (UsersListResponse) Slack.Response;
 
                 var user = users.Members.Single(x => x.Id == auth.UserId);
 

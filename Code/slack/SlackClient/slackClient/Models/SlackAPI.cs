@@ -4,8 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 
@@ -14,9 +16,41 @@ namespace SlackClient.Models
     public class SlackApi
     {
         /// <summary>
-        /// Gets the response of the HTTP request
+        /// The slack API base URL address
         /// </summary>
-        public SlackResponse Response { get; private set; }
+        private static readonly Uri SlackApiRoot = new Uri("https://slack.com/api/");
+
+        /// <summary>
+        /// The serializer settings
+        /// </summary>
+        public static readonly JsonSerializerSettings SerializerSettings;
+
+        /// <summary>
+        /// Static constructor which initializes the <see cref="SlackApi"/> class.
+        /// </summary>
+        static SlackApi()
+        {
+            SerializerSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new SlackPropertyNamesContractResolver(),
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore,
+            };
+
+            SerializerSettings.Converters.Add(new StringEnumConverter());
+
+            SerializerSettings.Converters.Add(new EpochDateTimeConverter());
+        }
+
+        protected static KeyValuePair<string, string> Pair(string key, object value)
+        {
+            return Pair(key, value.ToString());
+        }
+
+        protected static KeyValuePair<string, string> Pair(string key, string value)
+        {
+            return new KeyValuePair<string, string>(key, value);
+        }
 
         /// <summary>
         /// The token of user's profile
@@ -28,15 +62,11 @@ namespace SlackClient.Models
         /// </summary>
         private readonly HttpClient _httpClient;
 
-        /// <summary>
-        /// The slack API base URL address
-        /// </summary>
-        private static readonly Uri SlackApiRoot = new Uri("https://slack.com/api/");
 
         /// <summary>
-        /// The serializer settings
+        /// Gets the response of the HTTP request
         /// </summary>
-        public static readonly JsonSerializerSettings SerializerSettings;
+        public SlackResponse Response { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SlackApi"/> class.
@@ -64,24 +94,7 @@ namespace SlackClient.Models
             headers.Accept.Clear();
 
             headers.Accept.ParseAdd("application/json");
-        }
-
-        /// <summary>
-        /// Static constructor which initializes the <see cref="SlackApi"/> class.
-        /// </summary>
-        static SlackApi()
-        {
-            SerializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new SlackPropertyNamesContractResolver(),
-                Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore,
-            };
-
-            SerializerSettings.Converters.Add(new StringEnumConverter());
-
-            SerializerSettings.Converters.Add(new EpochDateTimeConverter());
-        }
+        }    
 
         /// <summary>
         /// The main method which make HTTP request
@@ -121,17 +134,7 @@ namespace SlackClient.Models
             }
 
             Response = resInfo;
-        }
-
-        protected static KeyValuePair<string, string> Pair(string key, object value)
-        {
-            return Pair(key, value.ToString());
-        }
-
-        protected static KeyValuePair<string, string> Pair(string key, string value)
-        {
-            return new KeyValuePair<string, string>(key, value);
-        }
+        }     
 
         /// <summary>
         /// Authentication test which returns information of the current workspace

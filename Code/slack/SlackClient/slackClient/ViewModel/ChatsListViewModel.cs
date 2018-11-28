@@ -2,15 +2,22 @@
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 using SlackClient.Views;
+
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
+
 using Xamarin.Forms;
 
 namespace SlackClient.ViewModels
 {
     public class ChatsListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
+
         /// <summary>
         /// Gets or sets the chats list.
         /// </summary>
@@ -22,31 +29,14 @@ namespace SlackClient.ViewModels
         public ICommand UpdateCommand { protected set; get; }
 
         /// <summary>
-        /// The selected chat
-        /// </summary>
-        private MessagesListViewModel _selectedChat;
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
-
-        /// <summary>
         /// Gets or sets the navigation of the app.
         /// </summary>
         public INavigation Navigation { get; set; }
-
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatsListViewModel"/> class.
+        /// The selected chat
         /// </summary>
-        /// <param name="page">The current page.</param>
-        public ChatsListViewModel(Page page)
-        {
-            this._page = page;
-            Chats = new ObservableCollection<MessagesListViewModel>();
-            UpdateCommand = new Command(Update);
-            Update();
-        }
+        private MessagesListViewModel _selectedChat;
 
         /// <summary>
         /// Gets or sets the selected chat.
@@ -84,6 +74,18 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ChatsListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
+        public ChatsListViewModel(Page page)
+        {
+            this._page = page;
+            Chats = new ObservableCollection<MessagesListViewModel>();
+            UpdateCommand = new Command(Update);
+            Update();
+        }
+
+        /// <summary>
         /// Updates this page.
         /// </summary>
         private async void Update()
@@ -93,12 +95,13 @@ namespace SlackClient.ViewModels
                 IsUpdating = true;
                 await Slack.ChannelsList();
 
-                var channels = (ChannelsListResponse)Slack.Response;
+                var channels = (ChannelsListResponse) Slack.Response;
 
                 Chats.Clear();
                 foreach (var currentChannel in channels.Channels)
                 {
-                    var newChat = new MessagesListViewModel(_page) {
+                    var newChat = new MessagesListViewModel(_page)
+                    {
                         ChatName = currentChannel.Name,
                         Slack = this.Slack,
                         ChatCreatedTime = currentChannel.Created.ToString(CultureInfo.InvariantCulture),

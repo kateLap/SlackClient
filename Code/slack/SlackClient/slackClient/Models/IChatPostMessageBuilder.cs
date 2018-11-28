@@ -27,7 +27,7 @@ namespace SlackClient.Models
         /// <summary>
         /// Find and link channel names and usernames
         /// </summary>
-        void BuildLinkNames(bool isAvailable);
+        void BuildLinkNames(string linkName);
 
         /// <summary>
         /// Pass false to disable unfurling of media content

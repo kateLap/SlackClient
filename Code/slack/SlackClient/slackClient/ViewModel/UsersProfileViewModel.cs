@@ -5,15 +5,27 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+
+using Xamarin.Forms;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
-using Xamarin.Forms;
 
 namespace SlackClient.ViewModels
 {
     public class UsersProfileViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
+
         /// <summary>
         /// Gets or sets the channels list.
         /// </summary>
@@ -37,25 +49,6 @@ namespace SlackClient.ViewModels
         /// The update channels command.
         /// </value>
         public ICommand UpdateChannelsCommand { get; protected set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UsersProfileViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The current page.</param>
-        public UsersProfileViewModel(Page page)
-        {
-            this._page = page;
-
-            Channels = new ObservableCollection<UsersChannel>();
-            this.UpdateChannelsCommand = new Command(UpdateChannels);
-        }
 
         /// <summary>
         /// The selected channel
@@ -177,6 +170,18 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="UsersProfileViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
+        public UsersProfileViewModel(Page page)
+        {
+            this._page = page;
+
+            Channels = new ObservableCollection<UsersChannel>();
+            this.UpdateChannelsCommand = new Command(UpdateChannels);
+        }
+
+        /// <summary>
         /// Kicks someone from the specified channel.
         /// </summary>
         /// <param name="channel">The channel.</param>
@@ -205,7 +210,7 @@ namespace SlackClient.ViewModels
                 IsUpdating = true;
 
                 await Slack.ChannelsList();
-                var channelsResponse = (ChannelsListResponse)Slack.Response;
+                var channelsResponse = (ChannelsListResponse) Slack.Response;
 
                 var channels = channelsResponse.Channels;
 

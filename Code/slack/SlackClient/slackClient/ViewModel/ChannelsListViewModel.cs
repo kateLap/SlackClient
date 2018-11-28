@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows.Input;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 using SlackClient.Views;
+
 using Xamarin.Forms;
 
 namespace SlackClient.ViewModels
 {
     public class ChannelsListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
+
         /// <summary>
         /// Channels list
         /// </summary>
@@ -24,26 +31,10 @@ namespace SlackClient.ViewModels
         public ICommand UpdateCommand { protected set; get; }
 
         /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
-
-        /// <summary>
         /// Navigation of this app
         /// </summary>
         public INavigation Navigation { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChannelsListViewModel"/> class.
-        /// </summary>
-        public ChannelsListViewModel(Page page)
-        {
-            this._page = page;
-            Channels = new ObservableCollection<EditTopicViewModel>();
-            UpdateCommand = new Command(Update);
-            Update();
-        }
-
+        
         /// <summary>
         /// The selected channel
         /// </summary>
@@ -75,6 +66,7 @@ namespace SlackClient.ViewModels
         /// Updating page flag.
         /// </summary>
         private bool _isUpdating = false;
+
         public bool IsUpdating
         {
             get => _isUpdating;
@@ -83,6 +75,17 @@ namespace SlackClient.ViewModels
                 _isUpdating = value;
                 OnPropertyChanged("IsUpdating");
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelsListViewModel"/> class.
+        /// </summary>
+        public ChannelsListViewModel(Page page)
+        {
+            this._page = page;
+            Channels = new ObservableCollection<EditTopicViewModel>();
+            UpdateCommand = new Command(Update);
+            Update();
         }
 
         /// <summary>

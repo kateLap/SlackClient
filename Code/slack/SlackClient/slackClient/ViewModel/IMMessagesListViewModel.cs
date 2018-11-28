@@ -1,23 +1,45 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.ComponentModel;
-using Xamarin.Forms;
 using System.Linq;
+using System.Collections.Generic;
+using System.Globalization;
+
+using Xamarin.Forms;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
-using System.Collections.Generic;
-using System.Globalization;
+
+
 
 namespace SlackClient.ViewModels
 {
     public class IMMessagesListViewModel : INotifyPropertyChanged
     {
         /// <summary>
+        /// The message
+        /// </summary>
+        private readonly ChatMessage _message;
+
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
+
+        /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
         /// <returns></returns>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Gets or sets the send message command.
+        /// </summary>
+        /// <value>
+        /// The send message command.
+        /// </value>
+        public ICommand SendMessageCommand { protected set; get; }
 
         /// <summary>
         /// Gets or sets the messages list.
@@ -36,19 +58,9 @@ namespace SlackClient.ViewModels
         private IEnumerable<Message> MessagesList { get; set; }
 
         /// <summary>
-        /// The message
-        /// </summary>
-        private readonly ChatMessage _message;
-
-        /// <summary>
         /// Gets or sets the Slack API class.
         /// </summary>
         public SlackApi Slack { get; set; }
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
 
         /// <summary>
         /// The user of the current dialog
@@ -123,21 +135,6 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IMMessagesListViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The current page.</param>
-        public IMMessagesListViewModel(Page page)
-        {
-            this._page = page;
-
-            _message = new ChatMessage();
-
-            Messages = new ObservableCollection<ChatMessage>();
-
-            this.SendMessageCommand = new Command(SendMessage);
-        }
-
-        /// <summary>
         /// The list view model
         /// </summary>
         private IMListViewModel _lvm;
@@ -169,14 +166,6 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the send message command.
-        /// </summary>
-        /// <value>
-        /// The send message command.
-        /// </value>
-        public ICommand SendMessageCommand { protected set; get; }
-
-        /// <summary>
         /// The updating flag
         /// </summary>
         private bool _isUpdating = false;
@@ -192,6 +181,21 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="IMMessagesListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
+        public IMMessagesListViewModel(Page page)
+        {
+            this._page = page;
+
+            _message = new ChatMessage();
+
+            Messages = new ObservableCollection<ChatMessage>();
+
+            this.SendMessageCommand = new Command(SendMessage);
+        }
+
+        /// <summary>
         /// Sends the message to an user.
         /// </summary>
         public async void SendMessage()
@@ -201,7 +205,7 @@ namespace SlackClient.ViewModels
                 IsUpdating = true;
 
                 await Slack.IMHistory(IMId);
-                var imMessages = (ChannelsHistoryResponse)Slack.Response;
+                var imMessages = (ChannelsHistoryResponse) Slack.Response;
                 MessagesList = imMessages.Messages;
 
                 if (_textMessage != null)
@@ -214,7 +218,7 @@ namespace SlackClient.ViewModels
                 }
 
                 await Slack.UsersList();
-                var users = (UsersListResponse)Slack.Response;
+                var users = (UsersListResponse) Slack.Response;
 
                 Messages.Clear();
                 foreach (var currentMessage in MessagesList)

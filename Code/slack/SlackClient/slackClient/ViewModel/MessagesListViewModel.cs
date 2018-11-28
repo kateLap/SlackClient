@@ -2,17 +2,33 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.ComponentModel;
-using Xamarin.Forms;
+using System.Collections.Generic;
 using System.Linq;
+
+using Xamarin.Forms;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
-using System.Collections.Generic;
 
 namespace SlackClient.ViewModels
 {
     public class MessagesListViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// The message
+        /// </summary>
+        private readonly ChatMessage _message;
+
+        /// <summary>
+        /// The selected list view model
+        /// </summary>
+        private EditTopicViewModel _selectedEdit;
+
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
@@ -43,39 +59,12 @@ namespace SlackClient.ViewModels
         public SlackApi Slack { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessagesListViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The page.</param>
-        public MessagesListViewModel(Page page)
-        {
-            this._page = page;
-            _message = new ChatMessage();
-            Messages = new ObservableCollection<ChatMessage>();
-            SendMessageCommand = new Command(SendMessage);
-        }
-
-        /// <summary>
-        /// The message
-        /// </summary>
-        private readonly ChatMessage _message;
-
-        /// <summary>
         /// Gets or sets the navigation of this app.
         /// </summary>
         /// <value>
         /// The navigation.
         /// </value>
         public INavigation Navigation { get; set; }
-
-        /// <summary>
-        /// The selected list view model
-        /// </summary>
-        EditTopicViewModel _selectedEdit;
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
 
         /// <summary>
         /// Gets or sets the messages list.
@@ -196,6 +185,18 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="MessagesListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The page.</param>
+        public MessagesListViewModel(Page page)
+        {
+            this._page = page;
+            _message = new ChatMessage();
+            Messages = new ObservableCollection<ChatMessage>();
+            SendMessageCommand = new Command(SendMessage);
+        }
+
+        /// <summary>
         /// Sends the message.
         /// </summary>
         public async void SendMessage()
@@ -213,12 +214,12 @@ namespace SlackClient.ViewModels
                 TextMessage = null;
 
                 await Slack.ChannelsHistory(chanId);
-                var channelsHistory = (ChannelsHistoryResponse)Slack.Response;
+                var channelsHistory = (ChannelsHistoryResponse) Slack.Response;
 
                 MessagesList = channelsHistory.Messages;
 
                 await Slack.UsersList();
-                var users = (UsersListResponse)Slack.Response;
+                var users = (UsersListResponse) Slack.Response;
 
                 Messages.Clear();
                 foreach (var currentMessage in MessagesList)

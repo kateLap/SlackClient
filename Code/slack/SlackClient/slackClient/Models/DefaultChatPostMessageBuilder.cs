@@ -7,6 +7,17 @@ namespace SlackClient.Models
     /// </summary>
     public class DefaultChatPostMessageBuilder : IChatPostMessageBuilder
     {
+
+        protected static KeyValuePair<string, string> Pair(string key, object value)
+        {
+            return Pair(key, value.ToString());
+        }
+
+        protected static KeyValuePair<string, string> Pair(string key, string value)
+        {
+            return new KeyValuePair<string, string>(key, value);
+        }
+
         /// <summary>
         /// Sets required parameters for the method Post message
         /// </summary>
@@ -90,16 +101,6 @@ namespace SlackClient.Models
             {
                 ChatPostMessage.Add(Pair("icon_emoji", emoji));
             }
-        }
-
-        protected static KeyValuePair<string, string> Pair(string key, object value)
-        {
-            return Pair(key, value.ToString());
-        }
-
-        protected static KeyValuePair<string, string> Pair(string key, string value)
-        {
-            return new KeyValuePair<string, string>(key, value);
         }
     }
 }

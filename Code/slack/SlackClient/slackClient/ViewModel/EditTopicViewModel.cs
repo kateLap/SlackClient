@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Input;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
+
 using Xamarin.Forms;
 
 namespace SlackClient.ViewModels
@@ -12,6 +14,14 @@ namespace SlackClient.ViewModels
 
     public class EditTopicViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Gets or sets the class of Slack API.
+        /// </summary>
+        public SlackApi Slack { get; set; }
+
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -20,27 +30,12 @@ namespace SlackClient.ViewModels
         private readonly Page _page;
 
         /// <summary>
-        /// Gets or sets the class of Slack API.
-        /// </summary>
-        public SlackApi Slack { get; set; }
-
-        /// <summary>
         /// Gets or sets the set topic command.
         /// </summary>
         /// <value>
         /// The set topic command.
         /// </value>
         public ICommand SetTopicCommand { protected set; get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EditTopicViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The current page.</param>
-        public EditTopicViewModel(Page page)
-        {
-            this._page = page;
-            SetTopicCommand = new Command(SetTopic);
-        }
 
         /// <summary>
         /// The channels list view model
@@ -112,6 +107,16 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="EditTopicViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
+        public EditTopicViewModel(Page page)
+        {
+            this._page = page;
+            SetTopicCommand = new Command(SetTopic);
+        }
+
+        /// <summary>
         /// Sets the topic of a channel.
         /// </summary>
         /// <exception cref="SlackClient.Models.SlackClientException">You don't have administrator opportunities</exception>
@@ -120,11 +125,11 @@ namespace SlackClient.ViewModels
             try
             {
                 await Slack.AuthTest();
-                var auth = (AuthTestResponse)Slack.Response;
+                var auth = (AuthTestResponse) Slack.Response;
                 var profileId = auth.UserId;
 
                 await Slack.UsersList();
-                var listResponse = (UsersListResponse)Slack.Response;
+                var listResponse = (UsersListResponse) Slack.Response;
 
                 var isOwner = false;
 
@@ -139,7 +144,7 @@ namespace SlackClient.ViewModels
                 if (isOwner)
                 {
                     await Slack.ChannelsSetTopic(ChannelId, TextTopic);
-                    var response = (SetTopicResponse)Slack.Response;
+                    var response = (SetTopicResponse) Slack.Response;
                 }
                 else
                 {

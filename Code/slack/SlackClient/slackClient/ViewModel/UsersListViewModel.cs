@@ -4,16 +4,28 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+
+using Xamarin.Forms;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 using SlackClient.Views;
-using Xamarin.Forms;
 
 namespace SlackClient.ViewModels
 {
     public class UsersListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// The selected user
+        /// </summary>
+        private UsersProfileViewModel _selectedUser;
+
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
+
         /// <summary>
         /// Gets or sets the users list.
         /// </summary>
@@ -39,28 +51,6 @@ namespace SlackClient.ViewModels
         public INavigation Navigation { get; set; }
 
         /// <summary>
-        /// The selected user
-        /// </summary>
-        private UsersProfileViewModel _selectedUser;
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UsersListViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The current page.</param>
-        public UsersListViewModel(Page page)
-        {
-            this._page = page;
-            Users = new ObservableCollection<UsersProfileViewModel>();
-            Update();
-            UpdateCommand = new Command(Update);
-        }
-
-        /// <summary>
         /// Gets or sets the selected user.
         /// </summary>
         /// <value>
@@ -82,6 +72,9 @@ namespace SlackClient.ViewModels
             }
         }
 
+        /// <summary>
+        /// The updating flag
+        /// </summary>
         private bool _isUpdating = false;
 
         public bool IsUpdating
@@ -95,6 +88,18 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="UsersListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The current page.</param>
+        public UsersListViewModel(Page page)
+        {
+            this._page = page;
+            Users = new ObservableCollection<UsersProfileViewModel>();
+            Update();
+            UpdateCommand = new Command(Update);
+        }
+
+        /// <summary>
         /// Updates this page.
         /// </summary>
         private async void Update()
@@ -104,10 +109,10 @@ namespace SlackClient.ViewModels
                 IsUpdating = true;
                 
                 await Slack.IMList();
-                var ims = (IMListResponse)Slack.Response;
+                var ims = (IMListResponse) Slack.Response;
 
                 await Slack.UsersList();
-                var users = (UsersListResponse)Slack.Response;
+                var users = (UsersListResponse) Slack.Response;
 
                 Users.Clear();
 
@@ -141,7 +146,7 @@ namespace SlackClient.ViewModels
                     };
 
                     await Slack.AuthTest();
-                    var profile = (AuthTestResponse)Slack.Response;
+                    var profile = (AuthTestResponse) Slack.Response;
                     var id = profile.UserId;
                     
                     if (item.User != id)

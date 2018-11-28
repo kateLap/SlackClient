@@ -1,16 +1,29 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+
 using SlackClient.Models;
 using SlackClient.Models.Response;
 using SlackClient.Models.Types;
 using SlackClient.Views;
-using System.Windows.Input;
+
 using Xamarin.Forms;
-using System.Linq;
+
 
 namespace SlackClient.ViewModels
 {
     public class IMListViewModel : SlackPageViewModel
     {
+        /// <summary>
+        /// The selected im dialog
+        /// </summary>
+        private IMMessagesListViewModel _selectedIm;
+
+        /// <summary>
+        /// The current page
+        /// </summary>
+        private readonly Page _page;
+
         /// <summary>
         /// Gets or sets the IMs list.
         /// </summary>
@@ -36,28 +49,6 @@ namespace SlackClient.ViewModels
         public INavigation Navigation { get; set; }
 
         /// <summary>
-        /// The selected im dialog
-        /// </summary>
-        IMMessagesListViewModel selectedIM;
-
-        /// <summary>
-        /// The current page
-        /// </summary>
-        private readonly Page _page;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="IMListViewModel"/> class.
-        /// </summary>
-        /// <param name="page">The page.</param>
-        public IMListViewModel(Page page)
-        {
-            this._page = page;
-            IMs = new ObservableCollection<IMMessagesListViewModel>();           
-            Update();
-            UpdateCommand = new Command(Update);
-        }
-
-        /// <summary>
         /// Gets or sets the selected im.
         /// </summary>
         /// <value>
@@ -65,15 +56,15 @@ namespace SlackClient.ViewModels
         /// </value>
         public IMMessagesListViewModel SelectedIM
         {
-            get => selectedIM;
+            get => _selectedIm;
             set
             {
-                if (selectedIM == value) return;
+                if (_selectedIm == value) return;
                 var tempChat = value;
                 tempChat.Messages.Clear();
                 tempChat.SendMessage();
                     
-                selectedIM = null;
+                _selectedIm = null;
                 OnPropertyChanged("SelectedIM");
                 Navigation.PushAsync(new IMMessagesPage(tempChat));
             }
@@ -95,6 +86,18 @@ namespace SlackClient.ViewModels
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="IMListViewModel"/> class.
+        /// </summary>
+        /// <param name="page">The page.</param>
+        public IMListViewModel(Page page)
+        {
+            this._page = page;
+            IMs = new ObservableCollection<IMMessagesListViewModel>();
+            Update();
+            UpdateCommand = new Command(Update);
+        }
+
+        /// <summary>
         /// Updates this page.
         /// </summary>
         private async void Update()
@@ -103,10 +106,10 @@ namespace SlackClient.ViewModels
             {
                 IsUpdating = true;
                 await Slack.IMList();
-                var channels = (IMListResponse)Slack.Response;
+                var channels = (IMListResponse) Slack.Response;
 
                 await Slack.UsersList();
-                var users = (UsersListResponse)Slack.Response;
+                var users = (UsersListResponse) Slack.Response;
 
                 IMs.Clear();
 
