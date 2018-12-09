@@ -8,46 +8,54 @@ namespace SlackClient.Models
     /// </summary>
     public static class SnakeCaseUtils
         {
-            public static string ToSnakeCase(string name)
+        public static string ToSnakeCase(string name)
+        {
+            if (string.IsNullOrEmpty(name))
             {
-                var sb = new StringBuilder(name);
-                var state = 0;
-                for (var i = 0; i < sb.Length; ++i)
-                {
-                    var c = sb[i];
-                    if (state == 0)
-                    {
-                        if (char.IsUpper(c))
-                        {
-                            sb[i] = char.ToLowerInvariant(c);
-                        }
+                return name;
+            }
 
-                        state = 1;
-                    }
-                    else if (state == 1 && char.IsUpper(c))
-                    {
-                        sb.Insert(i, '_');
-                        state = 0;
-                    }
-                    else if (state == 1)
-                    {
-                        if (char.IsDigit(c))
+            var stringBuilder = new StringBuilder(name);
+
+            var state = 0;
+
+            for (var i = 0; i < stringBuilder.Length; ++i)
+            {
+                var c = stringBuilder[i];
+                switch (state)
+                {
+                    case 0:
+                        if (char.IsUpper(c) || char.IsSeparator(c))
                         {
-                            sb.Insert(i, '_');
+                            stringBuilder[i] = char.ToLowerInvariant(c);
+                        }
+                        state = 1;
+                        break;
+                    case 1:
+                        if (char.IsUpper(c) || char.IsSeparator(c))
+                        {
+                            stringBuilder.Insert(i, '_');
+                            state = 0;
+                        }
+                        else if (char.IsDigit(c))
+                        {
+                            stringBuilder.Insert(i, '_');
                             state = 2;
                         }
-                    }
-                    else if (state == 2 && !char.IsUpper(c))
-                    {
-                        continue;
-                    }
-                    else if (state == 2)
-                    {
-                        sb.Insert(i, '_');
-                        state = 0;
-                    }
+                        break;
+                    case 2:
+                        if (char.IsUpper(c) || char.IsSeparator(c))
+                        {
+                            stringBuilder.Insert(i, '_');
+                            state = 0;
+                        }
+                        break;
                 }
-                return sb.ToString();
             }
+
+            stringBuilder.Replace(" ", string.Empty);
+
+            return stringBuilder.ToString();
         }
+    }
 }
